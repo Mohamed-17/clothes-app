@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User{
+  id String @id @default(uuid())
+  name String 
+  email String @unique
+  password Int
+  image String?
+  phone String?
+  postalCode String?
+  streetAddress String?
+  city String?
+  country String?
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
+  order OrderProduct[]
+}
+model Product{
+  id String @id @default(uuid())
+  name String
+  image String
+  description String 
+  order Int
+  basePrice Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  size Size[]
+  colors Color[]
+  category Category @relation(fields: [categoryId] , references: [id])
+  categoryId String
+  orders OrderProduct[]
+  
+}
+model Category {
+  id String @id @default(uuid())
+  name String
+  order Int @default(autoincrement())
+  product Product[]
+}
+model Order{
+  id String @id @default(uuid())
+  paid Boolean @default(false)
+  subTotal Float
+  deliveryFee Float
+  totalPrice Float
+  userEmail String
+  phone String
+  streetAddress String
+  postalCode String
+  city String
+  country String
+  createdAt DateTime
+  updatedAt DateTime @updatedAt
+  products OrderProduct[]
+}
+model OrderProduct{
+  id String @id @default(uuid())
+  quantity Int
+  Order Order @relation(fields: [orderId] , references: [id])
+  orderId String
+  User User? @relation(fields: [userId] , references: [id])
+  userId String?
+  Product Product @relation(fields: [productId] ,references: [id])
+  productId String
+}
+model Size {
+id String @id @default(uuid())
+name ProductSizes
+price Float
+Product Product? @relation(fields: [productId] ,references: [id])
+productId String?
+}
+model Color{
+  id String @id @default(uuid())
+  name ProdcutColors
+  Product Product? @relation(fields: [productId] ,references: [id])
+productId String?
+available Boolean @default(true)
+}
+enum ProductSizes{
+  SMALL
+  MEDUIM
+  LARGE
+}
+enum ProdcutColors{
+  WHITE
+  BLACK
+  BLUE
+}
